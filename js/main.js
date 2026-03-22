@@ -7,52 +7,7 @@
 'use strict';
 
 /* ─────────────────────────────────────────────────────────
-   MÓDULO: Cursor personalizado
 ───────────────────────────────────────────────────────── */
-const Cursor = (() => {
-  const cursorEl = document.getElementById('cursor');
-  const ringEl   = document.getElementById('cursor-ring');
-  let mouseX = 0, mouseY = 0, ringX = 0, ringY = 0;
-
-  function lerp(a, b, t) { return a + (b - a) * t; }
-
-  function animate() {
-    ringX = lerp(ringX, mouseX, 0.14);
-    ringY = lerp(ringY, mouseY, 0.14);
-    if (ringEl) {
-      ringEl.style.left = ringX + 'px';
-      ringEl.style.top  = ringY + 'px';
-    }
-    requestAnimationFrame(animate);
-  }
-
-  function init() {
-    if (!cursorEl || !ringEl) return;
-
-    document.addEventListener('mousemove', (e) => {
-      mouseX = e.clientX; mouseY = e.clientY;
-      cursorEl.style.left = e.clientX + 'px';
-      cursorEl.style.top  = e.clientY + 'px';
-    });
-    document.addEventListener('mouseleave', () => {
-      cursorEl.style.opacity = '0'; ringEl.style.opacity = '0';
-    });
-    document.addEventListener('mouseenter', () => {
-      cursorEl.style.opacity = '1'; ringEl.style.opacity = '1';
-    });
-
-    document.querySelectorAll(
-      'a, button, .product-card, .service-card, .filter-btn, .nav-link, .social-btn, .contact-item, [role="button"]'
-    ).forEach(el => {
-      el.addEventListener('mouseenter', () => document.body.classList.add('cursor-hover'));
-      el.addEventListener('mouseleave', () => document.body.classList.remove('cursor-hover'));
-    });
-
-    animate();
-  }
-
-  return { init };
-})();
 
 
 /* ─────────────────────────────────────────────────────────
@@ -64,7 +19,11 @@ const Nav = (() => {
   const mobile   = document.getElementById('mobile-menu');
   const progress = document.getElementById('progress-bar');
   const backTop  = document.getElementById('back-top');
+  const searchForm = document.getElementById('nav-search');
+  const searchInput = document.getElementById('nav-search-input');
+  const searchSuggestions = document.getElementById('nav-search-suggestions');
   const links    = document.querySelectorAll('.nav-link[data-section]');
+  let activeSuggestionIndex = -1;
 
   function updateScroll() {
     const scrollY = window.scrollY;
@@ -95,6 +54,58 @@ const Nav = (() => {
     document.body.style.overflow = '';
   }
 
+  function cerrarSugerencias() {
+    if (!searchSuggestions) return;
+    searchSuggestions.innerHTML = '';
+    searchSuggestions.classList.remove('open');
+    activeSuggestionIndex = -1;
+  }
+
+  function marcarSugerencia(index) {
+    if (!searchSuggestions) return;
+    const items = Array.from(searchSuggestions.querySelectorAll('.nav-search-suggestion'));
+    items.forEach((item, itemIndex) => item.classList.toggle('active', itemIndex === index));
+    activeSuggestionIndex = index;
+  }
+
+  function ejecutarBusqueda(query) {
+    const termino = query.trim();
+    if (!termino) return false;
+
+    const found = typeof Products !== 'undefined' && Products.search(termino);
+    if (found) {
+      cerrarSugerencias();
+    }
+    return found;
+  }
+
+  function renderizarSugerencias(query) {
+    if (!searchSuggestions || typeof Products === 'undefined') return;
+
+    const sugerencias = Products.getSuggestions(query);
+    if (!sugerencias.length) {
+      cerrarSugerencias();
+      return;
+    }
+
+    searchSuggestions.innerHTML = sugerencias.map((item, index) => `
+      <button class="nav-search-suggestion" type="button" data-index="${index}" data-query="${item.query}">
+        <span class="nav-search-suggestion-main">${item.label}</span>
+        <span class="nav-search-suggestion-meta">${item.meta}</span>
+      </button>
+    `).join('');
+
+    searchSuggestions.classList.add('open');
+    marcarSugerencia(-1);
+
+    searchSuggestions.querySelectorAll('.nav-search-suggestion').forEach(btn => {
+      btn.addEventListener('click', () => {
+        if (searchInput) searchInput.value = btn.dataset.query || '';
+        ejecutarBusqueda(btn.dataset.query || '');
+      });
+    });
+  }
+
   function init() {
     window.addEventListener('scroll', updateScroll, { passive: true });
     updateScroll();
@@ -109,6 +120,43 @@ const Nav = (() => {
         if (target) { e.preventDefault(); target.scrollIntoView({ behavior: 'smooth', block: 'start' }); }
       });
     });
+
+    if (searchForm && searchInput) {
+      searchForm.addEventListener('submit', (e) => {
+        e.preventDefault();
+        const query = searchInput.value.trim();
+        if (!query) return;
+
+        const found = ejecutarBusqueda(query);
+        if (!found) {
+          searchInput.select();
+        }
+      });
+
+      searchInput.addEventListener('input', () => renderizarSugerencias(searchInput.value));
+
+      searchInput.addEventListener('keydown', (e) => {
+        const items = searchSuggestions ? Array.from(searchSuggestions.querySelectorAll('.nav-search-suggestion')) : [];
+        if (!items.length) return;
+
+        if (e.key === 'ArrowDown') {
+          e.preventDefault();
+          marcarSugerencia((activeSuggestionIndex + 1) % items.length);
+        } else if (e.key === 'ArrowUp') {
+          e.preventDefault();
+          marcarSugerencia((activeSuggestionIndex - 1 + items.length) % items.length);
+        } else if (e.key === 'Enter' && activeSuggestionIndex >= 0) {
+          e.preventDefault();
+          items[activeSuggestionIndex].click();
+        } else if (e.key === 'Escape') {
+          cerrarSugerencias();
+        }
+      });
+
+      document.addEventListener('click', (e) => {
+        if (!searchForm.contains(e.target)) cerrarSugerencias();
+      });
+    }
   }
 
   return { init };
@@ -239,7 +287,7 @@ const Products = (() => {
     },
     {
       id: 4, category: 'compactadora', brand: 'Mikasa', name: 'Placa Compactadora Mikasa',
-      desc: 'Herramienta para aplanar y compactar superficies como arena, grava y asfalto. Ideal para acabados lisos en grandes áreas.',
+      desc: 'Herramienta de construcción diseñada para aplanar y compactar superficies como arena, grava y asfalto.',
       price: '520.000', tag: 'stock', tagLabel: 'En Stock',
       image: 'assets/placa-mikasa.png',
       specs: { 'Tipo': 'Placa compactadora', 'Aplicación': 'Arena, grava, asfalto', 'Especialidad': 'Acabados lisos', 'Cobertura': 'Grandes áreas' },
@@ -404,8 +452,103 @@ const Products = (() => {
     document.addEventListener('keydown', (e) => { if (e.key === 'Escape') cerrarModal(); });
   }
 
+  function normalizar(texto) {
+    return (texto || '')
+      .toString()
+      .normalize('NFD')
+      .replace(/[\u0300-\u036f]/g, '')
+      .toLowerCase()
+      .trim();
+  }
+
+  function activarFiltro(category) {
+    document.querySelectorAll('.filter-btn').forEach(btn => {
+      btn.classList.toggle('active', btn.dataset.filter === category);
+    });
+  }
+
+  function search(query) {
+    const termino = normalizar(query);
+    if (!termino) return false;
+
+    const categorias = ['excavadora', 'grua', 'niveladora', 'compactadora', 'cargador'];
+    const categoriaCoincidente = categorias.find(cat => normalizar(cat).includes(termino) || termino.includes(normalizar(cat)));
+
+    if (categoriaCoincidente) {
+      renderizar(categoriaCoincidente);
+      activarFiltro(categoriaCoincidente);
+      document.getElementById('catalog')?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+      return true;
+    }
+
+    const encontrado = PRODUCTOS.find(p => {
+      const bolsa = [
+        p.name,
+        p.brand,
+        p.category,
+        p.desc,
+        p.longDesc,
+        ...Object.keys(p.specs || {}),
+        ...Object.values(p.specs || {})
+      ].map(normalizar).join(' ');
+
+      return bolsa.includes(termino);
+    });
+
+    if (!encontrado) return false;
+
+    renderizar('all');
+    activarFiltro('all');
+    document.getElementById('catalog')?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+
+    setTimeout(() => {
+      const card = document.querySelector(`[data-product-id="${encontrado.id}"]`);
+      card?.scrollIntoView({ behavior: 'smooth', block: 'center' });
+      abrirModal(encontrado.id);
+    }, 280);
+
+    return true;
+  }
+
+  function getSuggestions(query) {
+    const termino = normalizar(query);
+    if (termino.length < 2) return [];
+
+    const sugerencias = [];
+    const categorias = {
+      excavadora: 'Categoría',
+      grua: 'Categoría',
+      niveladora: 'Categoría',
+      compactadora: 'Categoría',
+      cargador: 'Categoría'
+    };
+
+    Object.keys(categorias).forEach(cat => {
+      if (normalizar(cat).includes(termino)) {
+        sugerencias.push({
+          label: cat,
+          meta: categorias[cat],
+          query: cat
+        });
+      }
+    });
+
+    PRODUCTOS.forEach(p => {
+      const searchable = [p.name, p.brand, p.desc, p.category].map(normalizar).join(' ');
+      if (searchable.includes(termino)) {
+        sugerencias.push({
+          label: p.name,
+          meta: p.brand,
+          query: p.name
+        });
+      }
+    });
+
+    return sugerencias.slice(0, 6);
+  }
+
   function init() { renderizar('all'); initFiltros(); initModal(); }
-  return { init };
+  return { init, search, getSuggestions };
 })();
 
 
@@ -469,7 +612,6 @@ const Parallax = (() => {
    INICIALIZACIÓN
 ───────────────────────────────────────────────────────── */
 document.addEventListener('DOMContentLoaded', () => {
-  Cursor.init();
   Nav.init();
   Reveal.init();
   Counter.init();

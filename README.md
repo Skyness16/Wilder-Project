@@ -89,7 +89,7 @@ python -m http.server 3000
 
 - **Propietario:** Wilder Yesid Sepúlveda Ocampo
 - **Correo:** Wilder.exe@gmail.com
-- **WhatsApp:** +57 310 448 0000
+- **WhatsApp:** +57 324 484 4010
 - **Cobertura:** Medellín y área metropolitana, Antioquia
 - **Financiación:** Hasta 9 meses
 - **Experiencia:** 1 año
