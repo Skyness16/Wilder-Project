@@ -1,0 +1,70 @@
+/* ============================================================
+   WILDER YESID SEPÚLVEDA OCAMPO — Design Tokens & Variables
+   ============================================================ */
+
+:root {
+  /* ── Brand Colors ── */
+  --c-black:      #080909;
+  --c-void:       #0d0e10;
+  --c-deep:       #111316;
+  --c-steel:      #181b20;
+  --c-iron:       #1f2329;
+  --c-carbon:     #272c34;
+  --c-slate:      #353c47;
+  --c-ash:        #4d5566;
+  --c-mid:        #6b7585;
+  --c-silver:     #9aa3b0;
+  --c-fog:        #c4cad4;
+  --c-light:      #dde2e9;
+  --c-white:      #f4f6f9;
+
+  --c-yellow:     #f5c200;
+  --c-amber:      #d9a000;
+  --c-gold:       #b88100;
+  --c-rust:       #c03a0d;
+  --c-danger:     #e84118;
+  --c-green:      #1db954;
+  --c-blue:       #1a6fe8;
+
+  /* ── Gradients ── */
+  --g-yellow:   linear-gradient(135deg, #f5c200 0%, #d9a000 100%);
+  --g-dark:     linear-gradient(180deg, var(--c-void) 0%, var(--c-steel) 100%);
+  --g-glass:    linear-gradient(135deg, rgba(255,255,255,.04) 0%, rgba(255,255,255,.01) 100%);
+  --g-hero:     linear-gradient(120deg, rgba(8,9,9,.95) 0%, rgba(8,9,9,.7) 50%, rgba(8,9,9,.4) 100%);
+
+  /* ── Typography ── */
+  --f-display:  'Bebas Neue', sans-serif;
+  --f-heading:  'Barlow Condensed', sans-serif;
+  --f-body:     'Barlow', sans-serif;
+
+  /* ── Spacing ── */
+  --sp-xs:  4px;
+  --sp-sm:  8px;
+  --sp-md:  16px;
+  --sp-lg:  24px;
+  --sp-xl:  40px;
+  --sp-2xl: 64px;
+  --sp-3xl: 96px;
+  --sp-4xl: 128px;
+
+  /* ── Layout ── */
+  --max-w:     1320px;
+  --nav-h:     72px;
+  --radius-sm: 2px;
+  --radius-md: 4px;
+
+  /* ── Shadows ── */
+  --shadow-sm:  0 2px 8px rgba(0,0,0,.4);
+  --shadow-md:  0 8px 32px rgba(0,0,0,.5);
+  --shadow-lg:  0 24px 64px rgba(0,0,0,.6);
+  --shadow-xl:  0 40px 100px rgba(0,0,0,.7);
+  --glow-y:     0 0 40px rgba(245,194,0,.15);
+  --glow-y-sm:  0 0 20px rgba(245,194,0,.1);
+
+  /* ── Transitions ── */
+  --ease-out:    cubic-bezier(0.16, 1, 0.3, 1);
+  --ease-in-out: cubic-bezier(0.4, 0, 0.2, 1);
+  --t-fast:   0.15s;
+  --t-mid:    0.3s;
+  --t-slow:   0.6s;
+}
