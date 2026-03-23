@@ -85,17 +85,4 @@ python -m http.server 3000
 
 ---
 
-## ✅ Información del negocio
-
-- **Propietario:** Wilder Yesid Sepúlveda Ocampo
-- **Correo:** Wilder.exe@gmail.com
-- **WhatsApp:** +57 324 484 4010
-- **Cobertura:** Medellín y área metropolitana, Antioquia
-- **Financiación:** Hasta 9 meses
-- **Experiencia:** 1 año
-- **Proyectos:** +100 entregados
-- **Clientes activos:** 3
-
----
-
-*© 2025 Wilder Yesid Sepúlveda Ocampo — Medellín, Colombia*
+*© 2026 Wilder Yesid Sepúlveda Ocampo — Medellín, Colombia*
